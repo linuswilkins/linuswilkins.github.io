@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="bg-green-700">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -15,34 +15,74 @@
       integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
       crossorigin=""
     ></script>
-    <title>Simple HTML Site</title>
+    <title>Golf Map</title>
   </head>
-  <body>
-    <h1>Dein Standort</h1>
-    <button id="getLocation">Standort abrufen</button>
-    <div class="location" id="locationOutput"></div>
-    <div>
-      <h2>Deine Karte</h2>
-      <div class="h-52" id="map"></div>
-    </div>
-  </body>
+  <body class="h-screen">
+    <header class="fixed top-0 flex justify-center w-full my-2">
+      <div>
+        <h1 class="text-4xl">Golf Map</h1>
+      </div>
+    </header>
 
-  <div
-    class="absolute bottom-0 left-0 w-full bg-white border-t border-gray-300 shadow-lg"
-  >
-    <div class="max-w-screen-md mx-auto flex justify-around p-4">
-      <button
-        class="bg-green-500 text-white font-medium py-2 px-4 rounded hover:bg-blue-600"
-      >
-        Add shot
-      </button>
-      <button
-        class="bg-red-500 text-white font-medium py-2 px-4 rounded hover:bg-green-600"
-      >
-        Reset
-      </button>
+    <div class="h-full py-14">
+      <div class="mx-8 h-2/3">
+        <div
+          class="h-full border-8 border-green-900 rounded-3xl shadow-xl"
+          id="map"
+        ></div>
+      </div>
+
+      <div class="h-1/3 py-8">
+        <div
+          class="mx-8 p-4 bg-green-600 h-full rounded-3xl shadow-inner shadow-green-900 text-2xl"
+        >
+          <h2>Debug:</h2>
+          <p id="current-position">
+            Current position: <span id="current-position"></span>
+          </p>
+
+          <br />
+
+          <p id="current-shot">Current shot: <span id="current-shot"></span></p>
+
+          <p id="last-shot-distance">
+            Last shot distance: <span id="last-shot-distance"></span>
+          </p>
+
+          <p id="total-shot-distance">
+            Total shot distance: <span id="total-shot-distance"></span>
+          </p>
+
+          <p id="course-distance">
+            Course distance: <span id="course-distance"></span>
+          </p>
+        </div>
+      </div>
     </div>
-  </div>
+
+    <footer
+      class="fixed bottom-0 left-0 w-full bg-white border-t border-gray-300 shadow-lg"
+    >
+      <div class="max-w-screen-md mx-auto flex justify-around p-4">
+        <button
+          class="bg-green-500 text-white font-medium py-2 px-4 rounded hover:bg-blue-600"
+        >
+          Add shot
+        </button>
+        <button
+          class="bg-red-500 text-white font-medium py-2 px-4 rounded hover:bg-green-600"
+        >
+          Reset
+        </button>
+        <button
+          onclick="placeMarker()"
+          class="bg-green-500 text-white font-medium py-2 px-4 rounded hover:bg-green-600"
+        >
+          Start
+        </button>
+      </div>
+    </footer>
+  </body>
 
   <script src="script.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
