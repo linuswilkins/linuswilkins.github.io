@@ -1,5 +1,9 @@
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+  var shotLocations = [];
+  var polyline = null;
+
   function getLocation() {
+    console.log("getting location...");
     return new Promise((resolve, reject) => {
       if (!navigator.geolocation) {
         reject(
@@ -28,29 +32,22 @@ document.addEventListener("DOMContentLoaded", () => {
               break;
           }
           reject(new Error(errorMessage));
+        },
+        {
+          // temporary fix for Firefox
+          enableHighAccuracy: false,
+          timeout: 5000,
+          maximumAge: 6000,
         }
       );
     });
   }
 
-  var map = L.map("map").setView([2, 2], 19);
-
-  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    maxZoom: 19,
-    attribution:
-      '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-  }).addTo(map);
-
-  placeMarker();
-
-  async function placeMarker() {
+  async function placeMarker(location) {
     try {
-      const location = await getLocation();
-      console.log("Standort:", location);
-
       // Platziere einen Kreis auf der Karte
       L.circle([location.latitude, location.longitude], {
-        radius: 200,
+        radius: 1,
       }).addTo(map);
 
       // Karte zentrieren
@@ -61,5 +58,122 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  document.querySelector("#start").addEventListener("click", placeMarker);
+  console.log("Start script");
+
+  const locationOnLoad = await getLocation();
+  console.log("Location: ", locationOnLoad);
+
+  var map = L.map("map").setView(
+    [locationOnLoad.latitude, locationOnLoad.longitude],
+    19
+  );
+
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 19,
+    attribution:
+      '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+  }).addTo(map);
+
+  async function startGame() {
+    console.log("Game started");
+
+    const location = await getLocation();
+
+    console.log("Location: ", location);
+
+    shotLocations.push([location.latitude, location.longitude]);
+    placeMarker(location);
+
+    polyline = L.polyline(shotLocations, { color: "red" }).addTo(map);
+
+    setStats();
+  }
+
+  async function addShot() {
+    console.log("add shot");
+
+    const location = await getLocation();
+
+    console.log("Location: ", location);
+
+    shotLocations.push([location.latitude, location.longitude]);
+    placeMarker(location);
+
+    polyline.setLatLngs(shotLocations);
+
+    console.log("Shot locations: ", shotLocations);
+
+    // Show stats
+
+    setStats();
+  }
+
+  // !!check values!!
+  function calculateDistance(startCoord, endCoord) {
+    const [lat1, lon1] = startCoord;
+    const [lat2, lon2] = endCoord;
+
+    const R = 6371e3; // metres
+    const φ1 = (lat1 * Math.PI) / 180;
+    const φ2 = (lat2 * Math.PI) / 180;
+    const Δφ = ((lat2 - lat1) * Math.PI) / 180;
+    const Δλ = ((lon2 - lon1) * Math.PI) / 180;
+
+    const a =
+      Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+      Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    const distance = R * c; // in meters
+
+    return distance;
+  }
+
+  function setStats() {
+    //Debug stats
+
+    document.querySelector("span#current-position").textContent =
+      shotLocations[shotLocations.length - 1];
+
+    // Show stats
+    document.querySelector("span#current-shot").textContent =
+      shotLocations.length;
+
+    if (shotLocations.length > 1) {
+      const start = shotLocations[shotLocations.length - 2];
+      const end = shotLocations[shotLocations.length - 1];
+      const lastShotDistance = calculateDistance(start, end);
+
+      document.querySelector("span#last-shot-distance").textContent =
+        lastShotDistance + " m";
+
+      var totalShotDistance = 0;
+      for (let i = 0; i < shotLocations.length - 1; i++) {
+        const shotStart = shotLocations[i];
+        const shotEnd = shotLocations[i + 1];
+        const shotDistance = calculateDistance(shotStart, shotEnd);
+        totalShotDistance += shotDistance;
+      }
+
+      document.querySelector("span#total-shot-distance").textContent =
+        totalShotDistance + " m";
+
+      const first = shotLocations[0];
+      const last = shotLocations[shotLocations.length - 1];
+      totalDistance = calculateDistance(first, last);
+
+      document.querySelector("span#total-distance").textContent =
+        totalDistance + " m";
+    }
+  }
+
+  // Event-Listener for buttons
+
+  document.querySelector("#start").addEventListener("click", startGame);
+  document.querySelector("#add-shot").addEventListener("click", addShot);
+  document.querySelector("#reset").addEventListener("click", () => {
+    shotLocations = [];
+    polyline.setLatLngs(shotLocations);
+    setStats();
+  });
 });
