@@ -35,7 +35,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         },
         {
           // temporary fix for Firefox
-          enableHighAccuracy: false,
+          enableHighAccuracy: true,
           timeout: 5000,
           maximumAge: 6000,
         }
