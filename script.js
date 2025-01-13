@@ -146,7 +146,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const lastShotDistance = calculateDistance(start, end);
 
       document.querySelector("span#last-shot-distance").textContent =
-        lastShotDistance + " m";
+        lastShotDistance.toFixed(2) + " m";
 
       var totalShotDistance = 0;
       for (let i = 0; i < shotLocations.length - 1; i++) {
@@ -157,14 +157,14 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
 
       document.querySelector("span#total-shot-distance").textContent =
-        totalShotDistance + " m";
+        totalShotDistance.toFixed(2) + " m";
 
       const first = shotLocations[0];
       const last = shotLocations[shotLocations.length - 1];
       totalDistance = calculateDistance(first, last);
 
       document.querySelector("span#total-distance").textContent =
-        totalDistance + " m";
+        totalDistance.toFixed(2) + " m";
     }
   }
 
