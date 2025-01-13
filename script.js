@@ -46,7 +46,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   async function placeMarker(location) {
     try {
       // Platziere einen Kreis auf der Karte
-      L.circle([location.latitude, location.longitude], {
+      return L.circle([location.latitude, location.longitude], {
         radius: 1,
       }).addTo(map);
 
@@ -82,9 +82,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.log("Location: ", location);
 
     shotLocations.push([location.latitude, location.longitude]);
-    placeMarker(location);
+
+    const marker = await placeMarker(location);
+
+    marker.bindPopup("Start").openPopup();
 
     polyline = L.polyline(shotLocations, { color: "red" }).addTo(map);
+
+    document.querySelector("#add-shot").classList.remove("hidden");
+    document.querySelector("#start").classList.add("hidden");
 
     setStats();
   }
@@ -130,14 +136,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   function setStats() {
-    //Debug stats
-
-    document.querySelector("span#current-position").textContent =
-      shotLocations[shotLocations.length - 1];
-
     // Show stats
     document.querySelector("span#current-shot").textContent =
-      shotLocations.length;
+      shotLocations.length - 1;
 
     if (shotLocations.length > 1) {
       const start = shotLocations[shotLocations.length - 2];
@@ -167,13 +168,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
+  function reloadPage() {
+    location.reload(); // Seite neu laden
+  }
+
   // Event-Listener for buttons
 
   document.querySelector("#start").addEventListener("click", startGame);
   document.querySelector("#add-shot").addEventListener("click", addShot);
-  document.querySelector("#reset").addEventListener("click", () => {
-    shotLocations = [];
-    polyline.setLatLngs(shotLocations);
-    setStats();
-  });
+  document.querySelector("#reset").addEventListener("click", reloadPage);
 });
